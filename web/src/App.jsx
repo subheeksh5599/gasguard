@@ -391,7 +391,7 @@ function HowItWorks() {
 function Numbers() {
   const stats = [
     ['1', 'transaction to refuel'],
-    ['16/16', 'Foundry tests passing'],
+    ['24/24', 'Foundry tests passing'],
     ['0', 'admin keys or proxies'],
     ['10143', 'Monad testnet chain ID'],
   ]

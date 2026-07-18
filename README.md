@@ -36,6 +36,8 @@
   <a href="#faq">FAQ</a>
 </p>
 
+## Preview
+
 <p align="center">
   <img src="screenshots/landing.png" alt="GasGuard Landing Page" width="100%">
 </p>
