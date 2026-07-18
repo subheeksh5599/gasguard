@@ -1,0 +1,13 @@
+{
+  "name": "gasguard-keeper",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node bot.js",
+    "run-once": "node bot.js --once"
+  },
+  "dependencies": {
+    "ethers": "^6.13.0"
+  }
+}
