@@ -36,6 +36,14 @@
   <a href="#faq">FAQ</a>
 </p>
 
+<p align="center">
+  <img src="screenshots/landing.png" alt="GasGuard Landing Page" width="100%">
+</p>
+
+<p align="center">
+  <img src="screenshots/dashboard.png" alt="GasGuard Dashboard" width="100%">
+</p>
+
 ---
 
 ## The Problem
