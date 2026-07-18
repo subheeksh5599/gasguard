@@ -1,54 +1,89 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/%E2%9B%BD-GasGuard-7B3FE4?style=for-the-badge" alt="GasGuard" height="40">
-</p>
+<div align="center">
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Network-Monad_Testnet-7B3FE4?style=for-the-badge&logo=ethereum">
-  <img src="https://img.shields.io/badge/Chain_ID-10143-2B2644?style=for-the-badge">
-  <img src="https://img.shields.io/badge/Native-MON-1A1A1A?style=for-the-badge">
-  <img src="https://img.shields.io/badge/Built_with-Foundry-1A1A1A?style=for-the-badge">
-</p>
+<img src="screenshots/landing.png" alt="GasGuard — Pre-paid gas reserve for your wallet" width="100%" />
 
-<p align="center">
-  <img src="https://img.shields.io/badge/build-passing-brightgreen?style=flat-square">
-  <img src="https://img.shields.io/badge/tests-24%2F24-brightgreen?style=flat-square">
-  <img src="https://img.shields.io/badge/contracts-Solidity%200.8.20-blue?style=flat-square">
-  <img src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square">
-</p>
+&nbsp;
 
-<h1 align="center">GasGuard</h1>
-<h3 align="center"><em>The pre-paid gas reserve for your wallet.<br>Never run out of gas mid-deployment again.</em></h3>
+[![Live demo](https://img.shields.io/badge/●_live-gasguard--two.vercel.app-C24A17)](https://gasguard-two.vercel.app)
+[![Monad Testnet](https://img.shields.io/badge/⛽-Monad%20Testnet-7B3FE4)](https://testnet.monadexplorer.com/address/0x89B230004eEf2115486F4C76529659D5a85D9397)
+[![Contract](https://img.shields.io/badge/📜_MonadScan-GasGuard-14151a)](https://testnet.monadexplorer.com/address/0x89B230004eEf2115486F4C76529659D5a85D9397)
+[![License: MIT](https://img.shields.io/badge/license-MIT-C24A17.svg)](LICENSE)
+![Tests](https://img.shields.io/badge/tests-24%20passing-3fb950)
+![Stack](https://img.shields.io/badge/Solidity%20·%20React%2018%20·%20Vite%205-14151a)
+![Monad](https://img.shields.io/badge/Monad-Testnet%2010143-C24A17)
 
-<p align="center">
-  <strong>A smart-contract fuel tank for Monad. Pre-fund it once, set a balance threshold for any wallet, and refuel in a single transaction the moment you dip below the line — no faucet, no cooldown, no lost momentum. Built for the Build Anything Hackathon.</strong>
-</p>
+### The pre-paid gas reserve for your wallet. Never run out of gas mid-deployment again.
 
-<p align="center">
-  <a href="https://gasguard-two.vercel.app"><strong>🔗 Live Demo</strong></a> &bull;
-  <a href="https://github.com/subheeksh5599/gasguard"><strong>📦 GitHub</strong></a> &bull;
-  <a href="#the-problem">Problem</a> &bull;
-  <a href="#the-solution">Solution</a> &bull;
-  <a href="#architecture">Architecture</a> &bull;
-  <a href="#quick-start">Quick Start</a> &bull;
-  <a href="#contracts">Contracts</a> &bull;
-  <a href="#design">Design</a> &bull;
-  <a href="#roadmap">Roadmap</a> &bull;
-  <a href="#faq">FAQ</a>
-</p>
+GasGuard is a smart-contract fuel tank on Monad. Pre-fund it once, set a balance threshold for any wallet, and when it dips below the line — one transaction tops it back up. No faucet. No cooldown. No lost momentum. Built for the Spark hackathon.
 
-## Preview
+### ▶ Live at **[gasguard-two.vercel.app](https://gasguard-two.vercel.app)**
 
-<p align="center">
-  <img src="screenshots/landing.png" alt="GasGuard Landing Page" width="100%">
-</p>
+**[ Live demo ↗ ](https://gasguard-two.vercel.app)** · **[ Contract on MonadScan ↗ ](https://testnet.monadexplorer.com/address/0x89B230004eEf2115486F4C76529659D5a85D9397)** · **[ Architecture ↓ ](#architecture)** · **[ Run it locally ↓ ](#run-it-locally)**
 
-<p align="center">
-  <img src="screenshots/dashboard.png" alt="GasGuard Dashboard" width="100%">
-</p>
+Built solo for the Spark hackathon. MIT licensed.
+
+</div>
 
 ---
 
-## The Problem
+## Table of contents
+
+- [See it in one command](#-see-it-in-one-command)
+- [The problem](#the-problem)
+- [How it works](#how-it-works)
+  - [1 · Deposit](#1--deposit)
+  - [2 · Configure](#2--configure)
+  - [3 · Refuel](#3--refuel)
+  - [4 · Keeper bot](#4--keeper-bot)
+- [Architecture](#architecture)
+- [Contracts](#contracts)
+- [Safety, enforced on-chain](#safety-enforced-on-chain)
+- [What's real vs pending — the honesty table](#whats-real-vs-pending--the-honesty-table)
+- [Tests](#tests)
+- [Run it locally](#run-it-locally)
+- [Deploy](#deploy)
+- [Project layout](#project-layout)
+- [Tech stack](#tech-stack)
+- [Roadmap](#roadmap)
+- [License](#license)
+
+---
+
+## ▶ See it in one command
+
+GasGuard is deployed on Monad Testnet. Every function is a `cast call` — verify it yourself:
+
+```bash
+CONTRACT=0x89B230004eEf2115486F4C76529659D5a85D9397
+RPC=https://testnet-rpc.monad.xyz
+
+# Check tank balance
+$ cast call $CONTRACT "tankBalance(address)(uint256)" \
+    0x705B3D1D2Dc8c34941B20be6AB645F4aEC98bf25 --rpc-url $RPC
+0
+
+# Check if a wallet needs refuel
+$ cast call $CONTRACT "needsRefuel(address,address)(bool)" \
+    0x705B3D1D2Dc8c34941B20be6AB645F4aEC98bf25 \
+    0x705B3D1D2Dc8c34941B20be6AB645F4aEC98bf25 --rpc-url $RPC
+false
+
+# List watched wallets for an owner
+$ cast call $CONTRACT "getWallets(address)(address[])" \
+    0x705B3D1D2Dc8c34941B20be6AB645F4aEC98bf25 --rpc-url $RPC
+[]
+
+# Deposit 0.5 MON into your tank
+$ cast send $CONTRACT "deposit()" --value 0.5ether \
+    --private-key <key> --rpc-url $RPC
+# → Deposited event emitted on-chain
+```
+
+Every call is real, verifiable on Monad Testnet right now.
+
+---
+
+## The problem
 
 You're deploying a contract to Monad testnet. The RPC is slow, you're rushing, and the transaction fails — out of gas. You forgot to check your balance. Now you're stuck waiting for a faucet cooldown while your flow evaporates. Every builder has hit this wall.
 
@@ -59,49 +94,45 @@ You're deploying a contract to Monad testnet. The RPC is slow, you're rushing, a
 | **Context switching** | Topping up means leaving your terminal, hunting for a faucet, and losing your place |
 | **Shared team wallets** | "Can someone send me testnet MON?" is the most repeated message in every dev group chat |
 | **No safety net** | There is no on-chain primitive that automatically keeps a wallet above a working balance |
-| **Manual, error-prone** | Watching balances by hand doesn't scale across the many wallets a builder juggles |
 
 ---
 
-## The Solution
+## How it works
 
-GasGuard is a smart-contract **fuel tank**. Pre-fund it once with testnet MON, set a minimum balance threshold for any wallet, and when that wallet dips below the line, a top-up is released in a single transaction. Like a reserve fuel tank — fill it once, it saves you later.
+Four moves, one contract, zero trusted servers. The flow is enforced by the EVM at call time.
 
 ```
-1. DEPOSIT ──> 2. CONFIGURE ──> 3. MONITOR ──> 4. REFUEL
-   MON into        wallet to        web app         balance < threshold
-   your tank       watch +          polls balance          │
-                   threshold +      via RPC          checkAndRefuel(wallet)
-                   top-up amount                            │
-                                                     tops up in 1 tx
+1. DEPOSIT ──> 2. CONFIGURE ──> 3. REFUEL ──> 4. KEEPER (optional)
+   MON into        wallet to        balance < threshold   bot polls chain
+   your tank       watch +                │               auto-refuels
+                   threshold +     checkAndRefuel(wallet)  all low wallets
+                   top-up amount           │
+                                     tops up in 1 tx
 ```
 
-### What you get
+### 1 · Deposit
 
-- **Pre-paid gas reserve** — Deposit MON into a per-user tank held by the contract. It's yours; withdraw the unused balance anytime.
-- **Threshold-based refuel** — Set a minimum balance and a top-up amount for any wallet. The contract only releases funds when the watched wallet is genuinely below threshold.
-- **Multi-wallet support (v2)** — One tank can watch and refuel many wallets — your deployer, your CI bot, your teammate's hot wallet. Each wallet gets its own threshold and top-up amount.
-- **One-transaction top-up** — `checkAndRefuel` validates the balance on-chain and sends the top-up atomically. No multi-step dance.
-- **Refuel all at once** — `checkAndRefuelAll(owner)` tops up every below-threshold wallet in a single transaction. Perfect for keeper bots.
-- **Permissionless triggering** — Anyone can call `checkAndRefuel` for a configured owner. The contract enforces the rules, so a keeper, teammate, or cron can keep you topped up.
-- **Optional keeper bot** — A lightweight Node.js bot that polls the chain and auto-refuels every below-threshold wallet. Drop it on a $5 VPS or run it in a cron job.
-- **On-chain enforcement** — Thresholds and amounts are enforced by the EVM. The contract says no → the transaction reverts. No trusted server.
-- **Withdraw anytime** — Your tank is a reserve, not a lock-up. Pull unused MON back to your wallet in one transaction, with a one-click "Max" in the UI.
-- **A UI you'd actually keep open** — An editorial, motion-driven dashboard shows wallet balance, tank balance, and refuel status live (10-second polling), with one-click deposit, add wallet, refuel, and withdraw.
+Fund your personal tank with MON. The balance lives in `tankBalance[yourAddress]` — it's yours, withdrawable any time. Send MON directly to the contract or call `deposit()`.
 
----
+### 2 · Configure
 
-## Live Demo
+Add wallets to watch. Each gets its own threshold and top-up amount. One tank can watch many wallets — your deployer, your CI bot, your teammate's hot wallet. Rules are stored in `walletConfig[owner][wallet]` on-chain.
 
-**Production URL:** [https://gasguard-two.vercel.app](https://gasguard-two.vercel.app)
+### 3 · Refuel
 
-### Try it in 30 seconds
+When a watched wallet drops below its threshold, anyone calls `checkAndRefuel(owner, wallet)`. The contract reads the wallet's balance on-chain, validates against the configured threshold, and sends the top-up in a single atomic transaction. If the wallet is above threshold — no-op. If the tank is empty — revert. No admin keys, no trusted server.
 
-1. Connect a wallet on **Monad Testnet** (Chain ID `10143`).
-2. Deposit `0.5` MON into your GasGuard tank.
-3. Configure: watch your wallet, threshold `0.1` MON, top-up `0.25` MON.
-4. When your balance drops below `0.1` MON, hit **Refuel** — `0.25` MON lands in one transaction.
-5. Withdraw the unused tank balance whenever you're done.
+`checkAndRefuelAll(owner)` refuels every below-threshold wallet in one transaction — one click, all your wallets topped up.
+
+### 4 · Keeper bot
+
+An optional Node.js bot that polls the chain and auto-refuels. Set `WATCH_OWNERS` in `.env`, run `npm start`, and the bot calls `checkAndRefuelAll` whenever a wallet dips below threshold. Drop it on a $5 VPS or a cron job and forget about gas.
+
+```bash
+cd keeper
+npm install
+WATCH_OWNERS=0xYour,0xAddresses,0xHere npm start
+```
 
 ---
 
@@ -129,105 +160,53 @@ GasGuard is a smart-contract **fuel tank**. Pre-fund it once with testnet MON, s
 │                                                         │
 │  Storage:                                               │
 │  ┌──────────────────────────────────────────────────┐  │
-│  │ tankBalance[address]  → uint256 (per-user vault) │  │
-│  │ walletConfig[address] → {threshold, topUp, active}│  │
+│  │ tankBalance[owner]  → uint256 (per-user vault)   │  │
+│  │ walletConfig[owner][wallet] → Config             │  │
+│  │   {threshold, topUpAmount, active}               │  │
 │  └──────────────────────────────────────────────────┘  │
 │                                                         │
 │  Functions:                                             │
 │  ┌──────────────────────────────────────────────────┐  │
-│  │ deposit()            fund your tank with MON      │  │
-│  │ setConfig(w, t, a)   set wallet/threshold/amount  │  │
-│  │ clearConfig()        stop refuels, keep funds     │  │
-│  │ checkAndRefuel(o)    if o.balance < threshold     │  │
-│  │                      → send topUp from tank       │  │
-│  │ withdraw(amount)     pull unused MON back         │  │
-│  │ needsRefuel(o)       view: would refuel now?      │  │
+│  │ deposit()              fund your tank with MON    │  │
+│  │ setConfig(w, t, a)     add wallet to watch        │  │
+│  │ removeWallet(w)        stop watching a wallet     │  │
+│  │ clearConfig()          stop watching all wallets  │  │
+│  │ checkAndRefuel(o, w)   if w.balance < threshold   │  │
+│  │                        → send topUp from tank     │  │
+│  │ checkAndRefuelAll(o)   refuel all low wallets     │  │
+│  │ withdraw(amount)       pull unused MON back       │  │
+│  │ getWallets(o)          list watched wallets       │  │
+│  │ getAllConfigs(o)       all configs in one call    │  │
+│  │ needsRefuel(o, w)      would a refuel fire now?   │  │
 │  └──────────────────────────────────────────────────┘  │
 │                                                         │
-│  Events: Deposited, Withdrawn, Refueled, ConfigSet      │
+│  Events: Deposited, Withdrawn, Refueled, ConfigSet,     │
+│          WalletRemoved                                  │
 └──────────────────────────────────────────────────────────┘
 ```
 
-### Stack
+### Transaction flow
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React 18, Vite 5, Tailwind CSS 3 |
-| Wallet | ethers.js v6 + `window.ethereum` (no adapter bloat) |
-| Smart Contract | Solidity 0.8.20, Foundry (forge, cast, anvil) |
-| Chain | Monad Testnet (Chain ID 10143), MON native currency |
-| RPC | Monad public RPC (no API key required) |
-| Deployment | Vercel (frontend), Foundry script (contract) |
-
----
-
-## Quick Start
-
-### Prerequisites
-
-- Node.js 18+
-- [Foundry](https://book.getfoundry.sh/getting-started/installation)
-
-### 1. Clone and install
-
-```bash
-git clone https://github.com/subheeksh5599/gasguard.git
-cd gasguard
-
-# Frontend
-cd web && npm install && cd ..
-
-# Contracts (installs forge-std)
-cd contracts && forge install && cd ..
-```
-
-### 2. Build & test contracts (16 tests, all passing)
-
-```bash
-cd contracts
-forge build
-forge test -vvv
-```
-
-### 3. Deploy the contract
-
-```bash
-cp .env.example .env
-# Fill in PRIVATE_KEY and MONAD_RPC_URL
-forge script script/Deploy.s.sol:DeployGasGuard \
-  --rpc-url $MONAD_RPC_URL --broadcast
-```
-
-### 4. Run the web app
-
-```bash
-cd web
-cp .env.example .env
-# Set VITE_CONTRACT_ADDRESS to your deployed address
-npm run dev          # → http://localhost:5173
-```
-
-### 5. Build for production
-
-```bash
-cd web && npm run build   # outputs to dist/
-```
+1. **Connect wallet** on Monad Testnet (Chain ID 10143)
+2. **Deposit MON** into your tank — `deposit()` transfers MON to the contract
+3. **Add wallets** to watch — `setConfig(wallet, threshold, topUpAmount)` stores rules on-chain
+4. **Dashboard polls** every 10 seconds — reads tank balance, wallet configs, and balance via RPC
+5. **Refuel fires** — `checkAndRefuel(owner, wallet)` reads wallet balance on-chain, validates threshold, sends top-up atomically
+6. **Or keeper bot** — polls every 30 seconds, calls `checkAndRefuelAll(owner)` for all below-threshold wallets
 
 ---
 
 ## Contracts
 
-### Deployed Address (Monad Testnet)
+### Deployed on Monad Testnet
 
 | Contract | Address |
 |----------|---------|
 | GasGuard | [`0x89B230004eEf2115486F4C76529659D5a85D9397`](https://testnet.monadexplorer.com/address/0x89B230004eEf2115486F4C76529659D5a85D9397) |
 
-Deployed on Monad Testnet (Chain ID `10143`).
+Chain ID `10143`. Native currency: MON.
 
 ### GasGuard.sol
-
-Per-user gas reserve with threshold-based, permissionless refuels.
 
 ```solidity
 struct Config {
@@ -243,25 +222,65 @@ mapping(address => mapping(address => Config)) public walletConfig;  // owner =>
 | Function | Access | Description |
 |----------|--------|-------------|
 | `deposit()` | Public payable | Fund your tank with MON |
-| `setConfig(wallet, threshold, topUpAmount)` | Public | Add or update a wallet to watch (requires tank balance) |
+| `setConfig(wallet, threshold, topUpAmount)` | Public | Add or update a wallet to watch |
 | `removeWallet(wallet)` | Public | Stop watching a single wallet |
 | `clearConfig()` | Public | Remove all watched wallets; tank balance stays |
-| `checkAndRefuel(owner, wallet)` | Public | If watched wallet balance < threshold, send topUp from owner's tank |
-| `checkAndRefuelAll(owner)` | Public | Refuel ALL below-threshold wallets in one transaction |
+| `checkAndRefuel(owner, wallet)` | Public | If wallet balance < threshold, send topUp from tank |
+| `checkAndRefuelAll(owner)` | Public | Refuel ALL below-threshold wallets in one tx |
 | `withdraw(amount)` | Public | Pull unused MON back from your tank |
-| `getConfig(owner, wallet)` | View | Return `(threshold, topUpAmount, active)` for a watched wallet |
+| `getConfig(owner, wallet)` | View | Return `(threshold, topUpAmount, active)` |
 | `getWallets(owner)` | View | Return array of watched wallet addresses |
 | `getWalletCount(owner)` | View | Return number of watched wallets |
-| `getAllConfigs(owner)` | View | Return all wallets + configs + needsRefuel in one call |
-| `needsRefuel(owner, wallet)` | View | Would a refuel fire right now for this wallet? |
+| `getAllConfigs(owner)` | View | All wallets + configs + needsRefuel in one call |
+| `needsRefuel(owner, wallet)` | View | Would a refuel fire right now? |
 
 **Events:** `Deposited`, `Withdrawn`, `Refueled`, `ConfigSet`, `WalletRemoved`
 
-### Test Coverage
+---
+
+## Safety, enforced on-chain
+
+Every claim maps to code in the contract, not a promise:
+
+| Claim | How it's enforced |
+|-------|------------------|
+| Refuel only fires when wallet is genuinely low | `_wallet.balance < cfg.threshold` — checked on-chain at call time, not cached |
+| Funds only come from your own tank | `tankBalance[_owner] -= cfg.topUpAmount` — only the owner's tank is debited |
+| Top-up amount is capped by your config | `cfg.topUpAmount` is set by you, stored on-chain, immutable by callers |
+| Nobody can drain your tank | `checkAndRefuel` only sends the configured amount, only to the configured wallet |
+| Tank balance is always withdrawable | `withdraw()` checks `tankBalance[msg.sender]`, sends back to caller — no lockup |
+| No admin keys or proxies | Non-upgradeable, no `onlyOwner`, no proxy — nothing to compromise |
+| Custom errors for every failure | `NoTankBalance`, `NoConfigSet`, `InsufficientTankBalance`, `RefuelFailed`, `WithdrawFailed`, `ZeroAmount`, `WalletNotFound` |
+
+---
+
+## What's real vs pending — the honesty table
+
+| Capability | Status |
+|------------|--------|
+| **Deposit tank** — fund with MON via `deposit()` or direct transfer | **Real** — deployed on Monad testnet |
+| **Threshold config** — set min balance + top-up per wallet | **Real** — stored in `walletConfig[owner][wallet]` |
+| **One-click refuel** — `checkAndRefuel(owner, wallet)` | **Real** — anyone can call, EVM enforces rules |
+| **Multi-wallet** — one tank watches many wallets | **Real** — `getWallets()`, `getAllConfigs()`, `checkAndRefuelAll()` |
+| **Withdraw** — pull unused MON back any time | **Real** — `withdraw()` with "max" button in UI |
+| **Dashboard** — live wallet balance, tank balance, watched wallets | **Live** at gasguard-two.vercel.app |
+| **Keeper bot** — auto-refuels low wallets every 30s | **Real code** — `keeper/bot.js`, not deployed (needs a runner) |
+| **Multi-chain deploy** — CREATE2 script for any EVM testnet | **Real code** — `contracts/script/deploy-all.sh`, not executed |
+| **Mainnet deployment** | **Roadmap** — testnet-verified, mainnet-ready |
+| **External audit** | **Not done** — don't use with real funds |
+
+---
+
+## Tests
+
+**24 forge tests** — all passing, covering deposit, config, refuel, multi-wallet, withdraw, and edge cases:
+
+```bash
+cd contracts && forge test -vvv
+```
 
 ```
 Ran 24 tests for test/GasGuard.t.sol:GasGuardTest
-
 [PASS] test_Deposit_IncreasesTank
 [PASS] test_Deposit_EmitsEvent
 [PASS] test_Deposit_ZeroReverts
@@ -290,41 +309,57 @@ Ran 24 tests for test/GasGuard.t.sol:GasGuardTest
 Suite result: ok. 24 passed; 0 failed; 0 skipped
 ```
 
-### Keeper Bot
-
-A lightweight Node.js bot that monitors configured wallets and auto-refuels any that drop below threshold:
-
-```bash
-cd keeper
-cp .env.example .env
-# Set PRIVATE_KEY (keeper wallet needs MON for gas)
-# Set WATCH_OWNERS (comma-separated tank owner addresses)
-npm install
-npm start              # continuous mode (polls every 30s)
-npm run run-once       # run once and exit
-```
-
-The bot calls `getAllConfigs(owner)` to check which wallets are below threshold, then fires `checkAndRefuelAll(owner)` in a single transaction. Run it on a cron, a $5 VPS, or even a Vercel cron job.
-
-### Multi-Chain Deployment
-
-Deploy GasGuard to any EVM testnet using CREATE2 (same address on every chain):
-
-```bash
-cd contracts
-# Single chain
-forge script script/Deploy.s.sol:DeployGasGuardCreate2 \
-  --rpc-url $SEPOLIA_RPC_URL --broadcast --sig "run(uint256)" 42069101
-
-# All chains (requires .env with PRIVATE_KEY)
-./script/deploy-all.sh all
-# Or pick specific chains
-./script/deploy-all.sh sepolia,base_sepolia,arbitrum_sepolia
-```
+| Test | What it proves |
+|------|---------------|
+| `test_Deposit_IncreasesTank` | `deposit()` credits the correct tank balance |
+| `test_SetConfig_StoresConfig` | `setConfig()` stores threshold, top-up, active correctly |
+| `test_MultiWallet_AddMultipleWallets` | One tank can watch and refuel many wallets |
+| `test_RemoveWallet_RemovesFromList` | `removeWallet()` removes from array with swap-and-pop |
+| `test_CheckAndRefuel_SendsWhenBelowThreshold` | Below-threshold wallet receives top-up in one tx |
+| `test_CheckAndRefuel_NoopWhenAboveThreshold` | Above-threshold wallet is skipped with zero state change |
+| `test_CheckAndRefuelAll_RefuelsAllBelowThreshold` | `checkAndRefuelAll()` tops up all low wallets |
+| `test_CheckAndRefuelAll_SkipsAboveThreshold` | Above-threshold wallets are skipped in batch refuel |
+| `test_Withdraw_ReducesTankAndPays` | `withdraw()` returns MON to caller |
+| `test_CheckAndRefuel_RevertsWhenTankTooLow` | Insufficient tank balance → revert with `InsufficientTankBalance` |
 
 ---
 
-## Project Structure
+## Run it locally
+
+**Prerequisites:** Node.js 18+, Foundry (`curl -L https://foundry.paradigm.xyz | bash`)
+
+```bash
+git clone https://github.com/subheeksh5599/gasguard.git
+cd gasguard
+
+# Frontend
+cd web && npm install && npm run dev   # → http://localhost:5173
+
+# Contracts — build & test
+cd ../contracts
+forge build
+forge test -vvv                         # 24 tests, all passing
+
+# Deploy to Monad testnet
+cp .env.example .env                    # fill in PRIVATE_KEY
+source .env
+forge script script/Deploy.s.sol --rpc-url $MONAD_RPC_URL --broadcast
+
+# Set contract address in frontend
+cd ../web
+VITE_CONTRACT_ADDRESS=<deployed_address> npm run dev
+```
+
+## Deploy
+
+| | |
+|---|---|
+| **Frontend** | **[gasguard-two.vercel.app](https://gasguard-two.vercel.app)** — Vercel |
+| **GasGuard** | **[0x89B230...](https://testnet.monadexplorer.com/address/0x89B230004eEf2115486F4C76529659D5a85D9397)** — Monad Testnet |
+
+The frontend is static (Vite SPA) deployed on Vercel's free tier. The contract is on Monad testnet. Multi-chain deployment to other EVM testnets is scripted via CREATE2 — run `contracts/script/deploy-all.sh` with your key.
+
+## Project layout
 
 ```
 gasguard/
@@ -343,7 +378,7 @@ gasguard/
 │   │   │                      #   WithdrawForm, TxHistory
 │   │   ├── hooks/             # useWallet, useGasGuard
 │   │   ├── utils/contract.js  # ABI + address helpers (v2)
-│   │   └── index.css          # Design system (Fraunces/Inter/Plex Mono)
+│   │   └── index.css          # Design system (Fraunces, Inter, Plex Mono)
 │   ├── index.html
 │   ├── vite.config.js
 │   └── package.json
@@ -351,107 +386,30 @@ gasguard/
 │   ├── bot.js                 # Keeper: polls chain, auto-refuels
 │   ├── package.json
 │   └── .env.example
+├── screenshots/               # Landing + dashboard previews
 ├── vercel.json                # Vercel deployment config
 ├── README.md
 └── .gitignore
 ```
 
----
+## Tech stack
 
-## Design
-
-The frontend is deliberately not a template. It's an editorial, print-inspired interface built from scratch:
-
-- **Typography-led** — Fraunces (variable optical sizing) for display, Inter for body, IBM Plex Mono for on-chain data
-- **Warm paper palette** — off-white `#F2EFE7`, ink `#16140F`, a single burnt-orange accent `#C24A17`. No neon gradients, no glassmorphism
-- **Motion with intent** — masked line-reveals on load, word-by-word manifesto that lights up as you scroll, a pausable marquee, parallax hero exit, hover-indexed problem rows, and staggered card reveals — all via `IntersectionObserver` and CSS transforms (no animation libraries, zero extra bundle weight)
-- **Accessible** — full `prefers-reduced-motion` support disables every animation for users who ask for it
-- **Live dashboard** — the same design system carries into the app: three stat panels (wallet, tank, status), an armed refuel banner that pulses when gas is low, and deposit / configure / withdraw / history panels that poll the chain every 10 seconds
-
----
-
-## Security
-
-- **On-chain enforcement** — Thresholds and top-up amounts are checked by the EVM at call time, not by a trusted server.
-- **Balance verified at execution** — `checkAndRefuel` re-reads `owner.balance` on-chain, so a refuel can only fire when the wallet is genuinely below threshold.
-- **Isolated tanks** — Each user's `tankBalance` is separate; a refuel only draws from the owner's own tank.
-- **Custom errors** — `NoTankBalance`, `NoConfigSet`, `InsufficientTankBalance`, `RefuelFailed`, `WithdrawFailed`, `ZeroAmount` for cheap, explicit reverts.
-- **No admin keys** — Non-upgradeable, no owner privileges, no proxy. There is nothing to compromise.
-- **Withdraw anytime** — Your unused MON is never locked; `withdraw` returns it on demand.
-
----
+- **Smart Contract:** Solidity 0.8.20 + Foundry (forge, cast, anvil)
+- **Frontend:** React 18, Vite 5, Tailwind CSS 3, ethers.js v6
+- **Design:** Fraunces (display), Inter (body), IBM Plex Mono (data) — custom, no templates
+- **Chain:** Monad Testnet (Chain ID 10143), MON native currency
+- **Keeper Bot:** Node.js, ethers.js v6 — polls chain, auto-refuels
+- **Deployment:** Vercel (frontend), Foundry script (contracts), CREATE2 (multi-chain)
 
 ## Roadmap
 
 | Phase | What | Status |
 |-------|------|--------|
 | **Phase 1** — Hackathon MVP | Deposit tank, threshold config, one-click refuel, live dashboard | ✅ Done |
-| **Phase 2** — Automation | Keeper bot that calls `checkAndRefuelAll` automatically when any wallet drops below threshold | ✅ Done |
-| **Phase 3** — Multi-wallet | Watch and refuel many wallets from one tank (teams, CI runners) — one-click refuel all | ✅ Done |
-| **Phase 4** — Multi-chain | Deploy-ready: CREATE2 deploy script for any EVM testnet (Sepolia, Base, Arbitrum, Optimism, Polygon, Blast) | ✅ Done |
-
----
-
-## Team
-
-| Name | Role | Links |
-|------|------|-------|
-| **Subheeksh** | Solo Developer — Smart Contract, Frontend, Architecture | [GitHub](https://github.com/subheeksh5599) · [X](https://x.com/KomariS18774) |
-
-Built solo for the **Build Anything Hackathon** on Monad.
-
----
-
-## FAQ
-
-<details>
-<summary><strong>Why not just check my balance manually?</strong></summary>
-
-You can — until you forget once mid-deploy and lose your flow to a faucet cooldown. GasGuard turns "remember to top up" into an on-chain primitive: fund a tank once, and a top-up is one click (or one keeper call) away the moment you drop below your threshold.
-</details>
-
-<details>
-<summary><strong>Who can trigger a refuel?</strong></summary>
-
-Anyone. `checkAndRefuel(owner)` is permissionless — but it only releases funds when the owner's wallet is genuinely below the configured threshold, and only from the owner's own tank. That lets a teammate, keeper, or cron keep you topped up without holding your keys.
-</details>
-
-<details>
-<summary><strong>Can I get my MON back?</strong></summary>
-
-Yes. Your tank balance is yours. Call `withdraw(amount)` at any time to pull unused MON back to your wallet. Nothing is locked.
-</details>
-
-<details>
-<summary><strong>What stops someone from draining my tank?</strong></summary>
-
-The contract only sends the configured `topUpAmount`, only to the address you configured, and only while that wallet is below `threshold`. Once the balance is above threshold, `checkAndRefuel` is a no-op. Funds only move under your rules.
-</details>
-
-<details>
-<summary><strong>Is this mainnet-ready?</strong></summary>
-
-It's deployed on Monad testnet and covered by 16 passing Foundry tests, but it has not been externally audited. Don't use it with real funds.
-</details>
-
-<details>
-<summary><strong>Which chains are supported?</strong></summary>
-
-Currently Monad Testnet (Chain ID 10143). The contract is plain EVM Solidity 0.8.20 and can be deployed to any EVM chain — multi-chain deployment is on the roadmap.
-</details>
-
----
-
-## Powered by
-
-<p align="center">
-  <strong><a href="https://monad.xyz">Monad</a></strong> — high-performance EVM testnet<br>
-  <strong><a href="https://getfoundry.sh">Foundry</a></strong> — contract build, test, and deploy<br>
-  <em>Built for the Build Anything Hackathon</em>
-</p>
-
----
+| **Phase 2** — Automation | Keeper bot that calls `checkAndRefuelAll` when wallets drop below threshold | ✅ Done |
+| **Phase 3** — Multi-wallet | Watch and refuel many wallets from one tank — one-click refuel all | ✅ Done |
+| **Phase 4** — Multi-chain | CREATE2 deploy script for any EVM testnet (Sepolia, Base, Arbitrum, etc.) | ✅ Done |
 
 ## License
 
-MIT. Build whatever you want with it.
+MIT — see [LICENSE](LICENSE).
