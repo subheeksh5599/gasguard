@@ -1,0 +1,25 @@
+# Dependencies
+node_modules
+contracts/lib
+contracts/out
+contracts/cache
+
+# Build output
+web/dist
+
+# Environment
+.env
+contracts/.env
+web/.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+
+# Foundry cache
+contracts/broadcast
+.vercel
